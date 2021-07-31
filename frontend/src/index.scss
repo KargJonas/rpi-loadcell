@@ -1,0 +1,21 @@
+@import './colors.scss';
+
+body {
+  background-color: $theme-bg;
+  color: $theme-green;
+  font-family: DMMono;
+}
+
+button {
+  border: 2px solid $theme-green;
+  background-color: $theme-bg;
+  color: $theme-green;
+  font-size: 18px;
+  font-weight: bold;
+  padding: 5px 10px;
+  margin-right: 10px;
+
+  &:hover {
+    filter: brightness(0.8);
+  }
+}
