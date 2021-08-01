@@ -13,8 +13,9 @@ button {
   font-size: 18px;
   font-weight: bold;
   padding: 5px 10px;
-  margin-right: 10px;
-
+  margin-left: 16px;
+  margin-right: -4px;
+  
   &:hover {
     filter: brightness(0.8);
   }

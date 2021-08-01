@@ -1,38 +1,90 @@
 import { Component, createRef } from 'react';
 import './Graph.scss';
 
-const themeWhite = '#FFFBFC';
-// const themeGreen = '#31CB00';
-// const themeDarkGreen = '#1E441E';
+const themeWhite = '#FFFFFF';
+const themeGrey = '#444444';
+const themeGreen = '#31CB00';
 
 export default class Graph extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.cnv = createRef();
     this.updateCanvas = true;
-    
-    const rawData = { timeStamps: [], values: [] }
+    this.lineSpacing = 70;
+
+    this.rawData = { timeStamps: [], values: [] }
 
     for (let i = 0; i < Math.random() * 1000 + 400; i++) {
-      const value = Math.random() * 5 + 2;
-      
-      rawData.timeStamps.push(i);
-      rawData.values.push(value);
+      // const value = Math.random() * 5 + 2;
+      // const value = Math.sin(i / 20);
+      const value = Math.sqrt(i) + Math.random() * 0.4 - i / 40;
+
+      this.rawData.timeStamps.push(i);
+      this.rawData.values.push(value);
     }
-    
-    const startTime = rawData.timeStamps[0];
-    const stopTime = rawData.timeStamps[rawData.timeStamps.length - 1];
+
+    const startTime = this.rawData.timeStamps[0];
+    const stopTime = this.rawData.timeStamps[this.rawData.timeStamps.length - 1];
     const totalTime = stopTime - startTime;
 
-    const maxValue = Math.max(...rawData.values);
-    const minValue = Math.min(...rawData.values);
+    this.maxValue = Math.max(...this.rawData.values);
+    this.minValue = Math.min(...this.rawData.values);
+    const valueSpread = this.maxValue - this.minValue;
 
     this.data = { timeStamps: [], values: [] };
 
-    for (let i = 0; i < rawData.timeStamps.length; i++) {
-      this.data.timeStamps[i] = (rawData.timeStamps[i] - startTime) / totalTime;
-      this.data.values[i] = (rawData.values[i] - minValue) / maxValue;
+    for (let i = 0; i < this.rawData.timeStamps.length; i++) {
+      this.data.timeStamps[i] = (this.rawData.timeStamps[i] - startTime) / totalTime;
+      this.data.values[i] = (this.rawData.values[i] - this.minValue) / valueSpread;
     }
+
+    this.average = this.rawData.values
+      .reduce((accumulator, value) => accumulator + value) / this.rawData.values.length;
+
+    const round = this.round;
+
+    this.props.onInfoChange({
+      maxValue: round(this.maxValue, 4),
+      minValue: round(this.minValue, 4),
+      average: round(this.average, 4)
+    });
+  }
+
+  round(number, digits) {
+    const factor = Math.pow(10, digits);
+    return Math.round(number * factor) / factor;
+  }
+
+  mouseMove(e) {
+    const x = e.offsetX;
+    const y = e.offsetY;
+
+    const timeStampIndex = ((x / this.width) * this.data.timeStamps.length) | 0;
+    const valueIndex = ((y / this.height) * this.data.values.length) | 0;
+
+    const timeStamp = this.rawData.timeStamps[timeStampIndex];
+    const value = this.rawData.values[valueIndex];
+
+    const ctx = this.ctx;
+
+    this.draw();
+
+    ctx.beginPath();
+    ctx.fillStyle = themeGreen;
+    ctx.arc(x, this.data.values[timeStampIndex] * this.height, 5, 0, 8);
+    ctx.fill();
+
+    const round = this.round;
+
+    const info = {
+      maxValue: round(this.maxValue, 4),
+      minValue: round(this.minValue, 4),
+      average: round(this.average, 4),
+      timeStamp,
+      value: round(value, 4)
+    };
+
+    this.props.onInfoChange(info);
   }
 
   resize() {
@@ -48,20 +100,38 @@ export default class Graph extends Component {
     this.resize();
     window.addEventListener('resize', this.resize.bind(this));
 
+    this.cnv.current.addEventListener('mousemove', this.mouseMove.bind(this));
+
     // Start rendering loop
     this.draw();
   }
 
   draw() {
     if (!this.updateCanvas) return;
-    requestAnimationFrame(this.draw.bind(this));
 
     const ctx = this.ctx;
 
     ctx.clearRect(0, 0, this.width, this.height);
 
     ctx.beginPath();
+    ctx.strokeStyle = themeGrey;
+    ctx.lineWidth = 1;
+
+    for (let i = this.lineSpacing; i < this.width; i += this.lineSpacing) {
+      ctx.moveTo(i, 0);
+      ctx.lineTo(i, this.height);
+    }
+
+    for (let i = this.lineSpacing; i < this.height; i += this.lineSpacing) {
+      ctx.moveTo(0, i);
+      ctx.lineTo(this.width, i);
+    }
+
+    ctx.stroke();
+
+    ctx.beginPath();
     ctx.strokeStyle = themeWhite;
+    ctx.lineWidth = 1;
     ctx.moveTo(0, 0);
 
     for (let i = 0; i < this.data.timeStamps.length; i++) {
@@ -75,9 +145,7 @@ export default class Graph extends Component {
 
   render() {
     return (
-      <div className='graph'>
-        <canvas ref={this.cnv}></canvas>
-      </div>
+      <canvas className='graph' ref={this.cnv}></canvas>
     );
   }
 }

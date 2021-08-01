@@ -3,7 +3,21 @@
 .App {
   width: 80vw;
   position: absolute;
-  top: 50%;
+  top: 10vh;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
+
+  .container {
+    width: 100%;
+
+    .header {
+      float: left;
+      margin-bottom: 0;
+    }
+
+    .buttons {
+      float: right;
+      margin-top: 18px;
+    }
+  }
 }
