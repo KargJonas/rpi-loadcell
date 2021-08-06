@@ -8,21 +8,16 @@ const themeGreen = '#31CB00';
 export default class Graph extends Component {
   constructor(props) {
     super(props);
+
     this.cnv = createRef();
     this.updateCanvas = true;
     this.lineSpacing = 70;
+    this.rawData = { timeStamps: [], values: [] };
+    this.data = { timeStamps: [], values: [] };
+  }
 
-    this.rawData = { timeStamps: [], values: [] }
-
-    for (let i = 0; i < Math.random() * 1000 + 400; i++) {
-      // const value = Math.random() * 5 + 2;
-      // const value = Math.sin(i / 20);
-      const value = Math.sqrt(i) + Math.random() * 0.4 - i / 40;
-
-      this.rawData.timeStamps.push(i);
-      this.rawData.values.push(value);
-    }
-
+  prepData() {
+    // Figuring out some key metrics
     const startTime = this.rawData.timeStamps[0];
     const stopTime = this.rawData.timeStamps[this.rawData.timeStamps.length - 1];
     const totalTime = stopTime - startTime;
@@ -31,15 +26,17 @@ export default class Graph extends Component {
     this.minValue = Math.min(...this.rawData.values);
     const valueSpread = this.maxValue - this.minValue;
 
+    this.average = this.rawData.values
+      .reduce((accumulator, value) => accumulator + value) / this.rawData.values.length;
+
+    // Resetting the data object
     this.data = { timeStamps: [], values: [] };
 
+    // Filling the data object with adjusted data
     for (let i = 0; i < this.rawData.timeStamps.length; i++) {
       this.data.timeStamps[i] = (this.rawData.timeStamps[i] - startTime) / totalTime;
       this.data.values[i] = (this.rawData.values[i] - this.minValue) / valueSpread;
     }
-
-    this.average = this.rawData.values
-      .reduce((accumulator, value) => accumulator + value) / this.rawData.values.length;
 
     const round = this.round;
 
@@ -98,12 +95,17 @@ export default class Graph extends Component {
     this.ctx = this.cnv.current.getContext('2d');
 
     this.resize();
-    window.addEventListener('resize', this.resize.bind(this));
 
+    window.addEventListener('resize', this.resize.bind(this));
     this.cnv.current.addEventListener('mousemove', this.mouseMove.bind(this));
 
-    // Start rendering loop
-    this.draw();
+    this.props.socket.on('data', (dataPoint) => {
+      this.rawData.timeStamps.push(dataPoint.timeStamp);
+      this.rawData.values.push(dataPoint.value);
+
+      this.prepData();
+      this.draw();
+    });
   }
 
   draw() {
@@ -141,6 +143,11 @@ export default class Graph extends Component {
     }
 
     ctx.stroke();
+  }
+
+  componentDidUpdate() {
+    this.prepData();
+    this.draw();
   }
 
   render() {
