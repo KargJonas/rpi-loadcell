@@ -8,7 +8,7 @@ body {
 
 button {
   border: 2px solid $theme-green;
-  background-color: $theme-bg;
+  background-color: transparent;
   color: $theme-green;
   font-size: 18px;
   font-weight: bold;
@@ -19,4 +19,13 @@ button {
   &:hover {
     filter: brightness(0.8);
   }
+}
+
+input {
+  border: 2px solid $theme-green;
+  background-color: transparent;
+  color: $theme-green;
+  font-size: 18px;
+  font-weight: bold;
+  padding: 5px 10px;
 }

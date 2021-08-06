@@ -14,9 +14,15 @@ export default class Graph extends Component {
     this.lineSpacing = 70;
     this.rawData = { timeStamps: [], values: [] };
     this.data = { timeStamps: [], values: [] };
+
   }
 
   prepData() {
+    if (this.rawData.timeStamps.length > this.props.maxValues) {
+      this.rawData.timeStamps.shift();
+      this.rawData.values.shift();
+    }
+
     // Figuring out some key metrics
     const startTime = this.rawData.timeStamps[0];
     const stopTime = this.rawData.timeStamps[this.rawData.timeStamps.length - 1];
@@ -106,6 +112,8 @@ export default class Graph extends Component {
       this.prepData();
       this.draw();
     });
+
+    this.draw();
   }
 
   draw() {
@@ -143,11 +151,6 @@ export default class Graph extends Component {
     }
 
     ctx.stroke();
-  }
-
-  componentDidUpdate() {
-    this.prepData();
-    this.draw();
   }
 
   render() {
