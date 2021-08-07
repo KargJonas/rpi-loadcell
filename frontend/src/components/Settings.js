@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import './Settings.scss';
 
 export default function Settings({ closeSettings, open, maxValues }) {

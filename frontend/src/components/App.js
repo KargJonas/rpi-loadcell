@@ -10,19 +10,15 @@ export default class App extends Component {
   constructor() {
     super();
     this.state = { info: null, settingsOpen: false, maxValues: 400 };
-    this.socket = io('http://localhost:3001');
+    this.socket = io('localhost:3001');
   }
 
   resetData() {
     this.setState((state) => state.data = []);
   }
 
-  startRecording() {
-    this.socket.emit('start');
-  }
-
-  stopRecording() {
-    this.socket.emit('stop');
+  download() {
+    
   }
 
   openSettings() {
@@ -52,8 +48,7 @@ export default class App extends Component {
 
             <div className='buttons'>
               <button onClick={this.openSettings.bind(this)}>Settings</button>
-              <button onClick={this.startRecording.bind(this)}>Start</button>
-              <button onClick={this.stopRecording.bind(this)}>Stop</button>
+              <button onClick={this.download}>Download Graph</button>
             </div>
           </div>
 
