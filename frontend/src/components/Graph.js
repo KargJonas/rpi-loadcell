@@ -14,7 +14,6 @@ export default class Graph extends Component {
     this.lineSpacing = 70;
     this.rawData = { timeStamps: [], values: [] };
     this.data = { timeStamps: [], values: [] };
-
   }
 
   prepData() {

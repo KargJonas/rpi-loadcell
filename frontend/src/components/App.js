@@ -10,7 +10,7 @@ export default class App extends Component {
   constructor() {
     super();
     this.state = { info: null, settingsOpen: false, maxValues: 400 };
-    this.socket = io('localhost:3001');
+    this.socket = io('http://localhost:3001');
   }
 
   resetData() {
@@ -18,7 +18,16 @@ export default class App extends Component {
   }
 
   download() {
-    
+    const element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent('lol'));
+    element.setAttribute('download', 'data');
+  
+    element.style.display = 'none';
+    document.body.appendChild(element);
+  
+    element.click();
+  
+    document.body.removeChild(element);
   }
 
   openSettings() {
